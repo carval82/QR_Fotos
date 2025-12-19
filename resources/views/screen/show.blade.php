@@ -156,6 +156,7 @@
     <div class="watermark-text">
         <span class="created">Creado por</span>
         <span class="company">LC Design</span>
+        <span style="font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 2px;">Luis Carlos Correa · 301 248 1020</span>
     </div>
 </div>
 <script>

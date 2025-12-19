@@ -81,6 +81,12 @@
                 <div id="qr-url"></div>
                 <div class="url" id="url-string"></div>
             </div>
+            <div class="qr-card">
+                <h3>3. Dejar Mensaje 💌</h3>
+                <p>Escribe un mensaje de felicitación</p>
+                <div id="qr-message"></div>
+                <div class="url" id="message-string"></div>
+            </div>
         </div>
 
         <div class="print-section">
@@ -108,13 +114,19 @@
 
     <div class="brand">
         <img src="{{ asset('img/lcdesign-logo.png') }}" alt="LC Design">
-        <span>Creado por <strong>LC Design</strong></span>
+        <div>
+            <span>Creado por <strong>LC Design</strong></span>
+            <div style="font-size: 10px; margin-top: 4px;">
+                Luis Carlos Correa · <a href="tel:3012481020" style="color: var(--accent);">301 248 1020</a>
+            </div>
+        </div>
     </div>
 
     <script>
         const eventToken = @json($event->token);
         let qrWifi = null;
         let qrUrl = null;
+        let qrMessage = null;
 
         function generateQRs() {
             const ssid = document.getElementById('wifi-ssid').value;
@@ -125,13 +137,18 @@
             const wifiString = `WIFI:T:WPA;S:${ssid};P:${pass};;`;
             document.getElementById('wifi-string').textContent = `Red: ${ssid}`;
 
-            // URL for photo upload (sin /QR_Fotos/public/ porque usamos virtual host)
+            // URL for photo upload
             const uploadUrl = `http://${serverIp}/q/${eventToken}`;
             document.getElementById('url-string').textContent = uploadUrl;
+
+            // URL for messages
+            const messageUrl = `http://${serverIp}/m/${eventToken}`;
+            document.getElementById('message-string').textContent = messageUrl;
 
             // Clear previous QRs
             document.getElementById('qr-wifi').innerHTML = '';
             document.getElementById('qr-url').innerHTML = '';
+            document.getElementById('qr-message').innerHTML = '';
 
             // Generate WiFi QR
             qrWifi = new QRCode(document.getElementById('qr-wifi'), {
@@ -149,6 +166,16 @@
                 width: 200,
                 height: 200,
                 colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Generate Message QR
+            qrMessage = new QRCode(document.getElementById('qr-message'), {
+                text: messageUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#8b5cf6',
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.H
             });

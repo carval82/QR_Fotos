@@ -106,9 +106,10 @@
                     <td><code>{{ $event->token }}</code></td>
                     <td><a href="{{ route('q.show', ['token' => $event->token]) }}" target="_blank">Abrir</a></td>
                     <td><a href="{{ route('screen.show', ['token' => $event->token]) }}" target="_blank">Abrir</a></td>
-                    <td>
+                    <td class="actions">
                         <a href="{{ route('admin.events.qr', ['event' => $event->id]) }}">QR</a>
-                        <a href="{{ route('admin.events.moderation', ['event' => $event->id]) }}" style="margin-left:8px;">Moderar</a>
+                        <a href="{{ route('admin.events.moderation', ['event' => $event->id]) }}">Moderar</a>
+                        <a href="{{ route('admin.events.messages', ['event' => $event->id]) }}">Mensajes</a>
                     </td>
                 </tr>
             @endforeach
@@ -118,7 +119,12 @@
     </div>
     <div class="brand">
         <img src="{{ asset('img/lcdesign-logo.png') }}" alt="LC Design">
-        <span>Creado por <strong>LC Design</strong></span>
+        <div>
+            <span>Creado por <strong>LC Design</strong></span>
+            <div style="font-size: 10px; margin-top: 4px;">
+                Luis Carlos Correa · <a href="tel:3012481020" style="color: var(--accent);">301 248 1020</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>
