@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QR - {{ $event->name }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --bg:#0b1220; --card:#0f1a30; --text:#e8eefc; --muted:#a9b7d6; --line:#203050; --accent:#4f8cff; }
+        * { box-sizing: border-box; }
+        body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+        .title { margin: 0 0 6px; font-size: 28px; }
+        .subtitle { margin: 0 0 20px; color: var(--muted); }
+        .nav { margin-bottom: 20px; }
+        .btn { display:inline-block; padding: 12px 18px; border-radius: 10px; border: 1px solid rgba(79,140,255,.35); background: rgba(79,140,255,.18); color: var(--text); cursor: pointer; font-weight: 600; text-decoration: none; }
+        .btn:hover { background: rgba(79,140,255,.28); text-decoration: none; }
+        .qr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-top: 24px; }
+        .qr-card { background: #fff; border-radius: 16px; padding: 24px; text-align: center; color: #111; }
+        .qr-card h3 { margin: 0 0 8px; font-size: 18px; color: #333; }
+        .qr-card p { margin: 0 0 16px; font-size: 13px; color: #666; }
+        .qr-card canvas { display: block; margin: 0 auto; }
+        .qr-card .url { margin-top: 12px; font-size: 11px; color: #888; word-break: break-all; }
+        .config-section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-top: 24px; }
+        .config-section h3 { margin: 0 0 12px; color: var(--accent); }
+        .config-section label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 13px; }
+        .config-section input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: #0a1428; color: var(--text); margin-bottom: 12px; }
+        .brand { position: fixed; bottom: 16px; right: 16px; display: flex; align-items: center; gap: 8px; background: rgba(15,26,48,.85); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 12px; color: var(--muted); }
+        .brand img { height: 28px; width: auto; }
+        .brand span { white-space: nowrap; }
+        .print-section { margin-top: 24px; text-align: center; }
+
+        @media print {
+            body { background: #fff; color: #000; }
+            .nav, .config-section, .print-section, .brand, .btn { display: none !important; }
+            .container { max-width: 100%; padding: 0; }
+            .title, .subtitle { color: #000; text-align: center; }
+            .qr-grid { display: flex; justify-content: center; gap: 40px; }
+            .qr-card { box-shadow: none; border: 2px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="{{ route('admin.events.index') }}">← Volver a eventos</a>
+        </div>
+
+        <h1 class="title">QR para: {{ $event->name }}</h1>
+        <p class="subtitle">Escanea para conectarte al WiFi y subir fotos</p>
+
+        <div class="config-section">
+            <h3>Configuración WiFi del Hotspot</h3>
+            <p style="color: var(--muted); font-size: 13px; margin-bottom: 16px;">
+                Ingresa los datos del hotspot de tu portátil. El QR de WiFi se generará automáticamente.
+            </p>
+            <label>Nombre de la red (SSID)</label>
+            <input type="text" id="wifi-ssid" value="QR_Fotos_Event" placeholder="Ej: MiHotspot">
+            
+            <label>Contraseña</label>
+            <input type="text" id="wifi-pass" value="12345678" placeholder="Mínimo 8 caracteres">
+            
+            <label>IP del servidor (tu portátil)</label>
+            <input type="text" id="server-ip" value="192.168.137.1" placeholder="Ej: 192.168.137.1">
+            
+            <button class="btn" onclick="generateQRs()">Regenerar QRs</button>
+        </div>
+
+        <div class="qr-grid">
+            <div class="qr-card">
+                <h3>1. Conectar al WiFi</h3>
+                <p>Escanea para conectarte automáticamente</p>
+                <div id="qr-wifi"></div>
+                <div class="url" id="wifi-string"></div>
+            </div>
+            <div class="qr-card">
+                <h3>2. Subir Fotos</h3>
+                <p>Después de conectarte, escanea este QR</p>
+                <div id="qr-url"></div>
+                <div class="url" id="url-string"></div>
+            </div>
+        </div>
+
+        <div class="print-section">
+            <button class="btn" onclick="window.print()">🖨️ Imprimir QRs</button>
+        </div>
+
+        <div class="config-section" style="margin-top: 32px;">
+            <h3>📋 Cómo configurar el Hotspot en Windows</h3>
+            <ol style="color: var(--muted); line-height: 1.8; padding-left: 20px;">
+                <li>Abre <strong>Configuración</strong> → <strong>Red e Internet</strong> → <strong>Zona con cobertura inalámbrica móvil</strong></li>
+                <li>Activa <strong>"Compartir mi conexión a Internet"</strong></li>
+                <li>Haz clic en <strong>Editar</strong> para configurar:
+                    <ul style="margin-top: 8px;">
+                        <li><strong>Nombre de red:</strong> El mismo que pusiste arriba (SSID)</li>
+                        <li><strong>Contraseña:</strong> La misma que pusiste arriba</li>
+                        <li><strong>Banda:</strong> 2.4 GHz (mejor compatibilidad)</li>
+                    </ul>
+                </li>
+                <li>La IP del hotspot suele ser <code style="background: rgba(255,255,255,.1); padding: 2px 6px; border-radius: 4px;">192.168.137.1</code></li>
+                <li>Asegúrate de que XAMPP/Apache esté corriendo</li>
+                <li>Los usuarios escanean el QR WiFi → luego el QR de URL → suben fotos</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="brand">
+        <img src="{{ asset('img/lcdesign-logo.png') }}" alt="LC Design">
+        <span>Creado por <strong>LC Design</strong></span>
+    </div>
+
+    <script>
+        const eventToken = @json($event->token);
+        let qrWifi = null;
+        let qrUrl = null;
+
+        function generateQRs() {
+            const ssid = document.getElementById('wifi-ssid').value;
+            const pass = document.getElementById('wifi-pass').value;
+            const serverIp = document.getElementById('server-ip').value;
+
+            // WiFi QR string format: WIFI:T:WPA;S:<SSID>;P:<PASSWORD>;;
+            const wifiString = `WIFI:T:WPA;S:${ssid};P:${pass};;`;
+            document.getElementById('wifi-string').textContent = `Red: ${ssid}`;
+
+            // URL for photo upload
+            const uploadUrl = `http://${serverIp}/QR_Fotos/public/q/${eventToken}`;
+            document.getElementById('url-string').textContent = uploadUrl;
+
+            // Clear previous QRs
+            document.getElementById('qr-wifi').innerHTML = '';
+            document.getElementById('qr-url').innerHTML = '';
+
+            // Generate WiFi QR
+            qrWifi = new QRCode(document.getElementById('qr-wifi'), {
+                text: wifiString,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Generate URL QR
+            qrUrl = new QRCode(document.getElementById('qr-url'), {
+                text: uploadUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        // Generate on page load
+        document.addEventListener('DOMContentLoaded', generateQRs);
+    </script>
+</body>
+</html>
