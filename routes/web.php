@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminEventController;
 use App\Http\Controllers\AdminPhotoController;
 use App\Http\Controllers\PublicUploadController;
@@ -7,7 +8,7 @@ use App\Http\Controllers\ScreenController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('admin.login');
 });
 
 Route::get('/q/{token}', [PublicUploadController::class, 'show'])->name('q.show');
@@ -15,6 +16,11 @@ Route::post('/q/{token}/upload', [PublicUploadController::class, 'upload'])->nam
 
 Route::get('/screen/{token}', [ScreenController::class, 'show'])->name('screen.show');
 Route::get('/screen/{token}/photos', [ScreenController::class, 'photos'])->name('screen.photos');
+
+// Admin login routes
+Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
+Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
+Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
 Route::prefix('admin')->middleware('admin.basic')->group(function () {
     Route::get('/events', [AdminEventController::class, 'index'])->name('admin.events.index');

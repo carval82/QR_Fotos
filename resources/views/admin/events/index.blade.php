@@ -41,7 +41,13 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="title">Eventos</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h1 class="title" style="margin: 0;">Eventos</h1>
+            <form method="POST" action="{{ route('admin.logout') }}" style="margin: 0;">
+                @csrf
+                <button type="submit" class="btn" style="background: rgba(255,90,95,.15); border-color: rgba(255,90,95,.35);">Cerrar Sesión</button>
+            </form>
+        </div>
 
         @if(session('status'))
             <div class="flash">{{ session('status') }}</div>
