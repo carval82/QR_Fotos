@@ -125,8 +125,8 @@
             const wifiString = `WIFI:T:WPA;S:${ssid};P:${pass};;`;
             document.getElementById('wifi-string').textContent = `Red: ${ssid}`;
 
-            // URL for photo upload
-            const uploadUrl = `http://${serverIp}/QR_Fotos/public/q/${eventToken}`;
+            // URL for photo upload (sin /QR_Fotos/public/ porque usamos virtual host)
+            const uploadUrl = `http://${serverIp}/q/${eventToken}`;
             document.getElementById('url-string').textContent = uploadUrl;
 
             // Clear previous QRs
