@@ -27,6 +27,12 @@
             to { opacity: 1; transform: scale(1); }
         }
         
+        @keyframes newPhotoIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
         /* Marca de agua grande en esquina inferior derecha */
         .watermark {
             position: fixed;
@@ -166,33 +172,77 @@
     let photos = [];
     let index = 0;
     let lastCreatedAt = null;
+    
+    // Sistema de cola de prioridad para fotos nuevas
+    let newPhotosQueue = [];
+    let slideInterval = null;
+    let isShowingNewPhoto = false;
+    const SLIDE_DURATION = 5000; // 5 segundos por foto
+    const NEW_PHOTO_DURATION = 6000; // 6 segundos para fotos nuevas (un poco más)
 
-    function updateUI() {
+    function showPhoto(photo, isNew = false) {
         const img = document.getElementById('img');
         const noPhotos = document.getElementById('no-photos');
-        const photoCount = document.getElementById('photo-count');
-        
-        photoCount.textContent = photos.length + ' foto' + (photos.length !== 1 ? 's' : '');
-        
-        if (!photos.length) {
-            img.style.display = 'none';
-            noPhotos.style.display = 'block';
-            return;
-        }
         
         noPhotos.style.display = 'none';
         img.style.display = 'block';
         
-        if (index >= photos.length) index = 0;
-        
-        // Fade effect
+        // Efecto de entrada especial para fotos nuevas
         img.style.animation = 'none';
-        img.offsetHeight; // Trigger reflow
-        img.style.animation = 'fadeIn 0.5s ease';
+        img.offsetHeight;
+        img.style.animation = isNew ? 'newPhotoIn 0.8s ease' : 'fadeIn 0.5s ease';
         
-        img.src = photos[index].url;
-        img.alt = 'Foto ' + (index + 1);
-        index++;
+        img.src = photo.url;
+        img.alt = isNew ? '¡Nueva foto!' : 'Foto';
+    }
+
+    function updateCounter() {
+        const photoCount = document.getElementById('photo-count');
+        const total = photos.length;
+        const pending = newPhotosQueue.length;
+        
+        if (pending > 0) {
+            photoCount.textContent = total + ' foto' + (total !== 1 ? 's' : '') + ' • ' + pending + ' nueva' + (pending !== 1 ? 's' : '') + ' en cola';
+        } else {
+            photoCount.textContent = total + ' foto' + (total !== 1 ? 's' : '');
+        }
+    }
+
+    function processQueue() {
+        // Si hay fotos nuevas en cola, mostrarlas primero
+        if (newPhotosQueue.length > 0) {
+            isShowingNewPhoto = true;
+            const newPhoto = newPhotosQueue.shift();
+            showPhoto(newPhoto, true);
+            updateCounter();
+            
+            // Después del tiempo de visualización, continuar con la cola o el carrusel
+            setTimeout(() => {
+                isShowingNewPhoto = false;
+                processQueue();
+            }, NEW_PHOTO_DURATION);
+            return;
+        }
+        
+        // Si no hay fotos nuevas, continuar con el carrusel normal
+        if (photos.length > 0) {
+            if (index >= photos.length) index = 0;
+            showPhoto(photos[index], false);
+            index++;
+        }
+    }
+
+    function startCarousel() {
+        // Limpiar intervalo anterior si existe
+        if (slideInterval) clearInterval(slideInterval);
+        
+        // Iniciar carrusel normal
+        slideInterval = setInterval(() => {
+            // Solo avanzar si no estamos mostrando fotos nuevas
+            if (!isShowingNewPhoto && newPhotosQueue.length === 0) {
+                processQueue();
+            }
+        }, SLIDE_DURATION);
     }
 
     async function poll() {
@@ -202,26 +252,43 @@
             const res = await fetch(url.toString(), { headers: { 'Accept': 'application/json' } });
             if (!res.ok) return;
             const data = await res.json();
+            
             if (Array.isArray(data.photos) && data.photos.length) {
+                const isFirstLoad = photos.length === 0;
+                
+                // Agregar fotos al array principal
                 photos = photos.concat(data.photos);
                 lastCreatedAt = data.last_created_at;
-                if (photos.length === data.photos.length) {
-                    updateUI();
+                
+                if (isFirstLoad) {
+                    // Primera carga: mostrar primera foto inmediatamente
+                    processQueue();
+                } else {
+                    // Fotos nuevas: agregar a la cola de prioridad
+                    data.photos.forEach(photo => {
+                        newPhotosQueue.push(photo);
+                    });
+                    
+                    // Si no estamos mostrando una foto nueva, iniciar proceso inmediatamente
+                    if (!isShowingNewPhoto) {
+                        processQueue();
+                    }
                 }
+                
+                updateCounter();
             }
-            // Update count even if no new photos
-            document.getElementById('photo-count').textContent = photos.length + ' foto' + (photos.length !== 1 ? 's' : '');
         } catch (e) {
             console.error('Error polling:', e);
         }
     }
 
-    // Initial state
+    // Estado inicial
     document.getElementById('no-photos').style.display = 'block';
     document.getElementById('photo-count').textContent = '0 fotos';
 
-    setInterval(updateUI, 5000);
-    setInterval(poll, 3000);
+    // Iniciar carrusel y polling
+    startCarousel();
+    setInterval(poll, 2000); // Polling cada 2 segundos para detectar fotos nuevas más rápido
     poll();
 </script>
 </body>
