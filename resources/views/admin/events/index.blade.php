@@ -67,6 +67,14 @@
                     @error('name')
                         <div class="error">{{ $message }}</div>
                     @enderror
+                    <div style="margin-bottom:12px;">
+                        <label>Token personalizado (opcional)</label>
+                        <input type="text" name="custom_token" value="{{ old('custom_token') }}" placeholder="Dejar vacío para generar automáticamente">
+                        <small style="color: var(--muted); font-size: 11px; display: block; margin-top: 4px;">Solo usar si necesitas recrear un evento con QR ya impreso</small>
+                    </div>
+                    @error('custom_token')
+                        <div class="error">{{ $message }}</div>
+                    @enderror
                     <div class="checkbox-row">
                         <input type="checkbox" name="requires_moderation" id="requires_moderation" value="1" checked>
                         <label for="requires_moderation">Requiere moderación</label>

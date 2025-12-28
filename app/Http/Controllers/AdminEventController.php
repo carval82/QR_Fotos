@@ -21,13 +21,18 @@ class AdminEventController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'custom_token' => ['nullable', 'string', 'max:255', 'unique:events,token'],
         ]);
 
         $requiresModeration = $request->boolean('requires_moderation');
 
-        do {
-            $token = Str::random(24);
-        } while (Event::query()->where('token', $token)->exists());
+        if (!empty($validated['custom_token'])) {
+            $token = $validated['custom_token'];
+        } else {
+            do {
+                $token = Str::random(24);
+            } while (Event::query()->where('token', $token)->exists());
+        }
 
         Event::query()->create([
             'name' => $validated['name'],
