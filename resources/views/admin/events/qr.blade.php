@@ -138,6 +138,18 @@
                 <div id="qr-message"></div>
                 <div class="url" id="message-string"></div>
             </div>
+            <div class="qr-card">
+                <h3>4. Subir Videos 🎬</h3>
+                <p>Videos cortos (máx 30 segundos)</p>
+                <div id="qr-video"></div>
+                <div class="url" id="video-string"></div>
+            </div>
+            <div class="qr-card">
+                <h3>5. Transmitir en Vivo 🔴</h3>
+                <p>Transmisión en tiempo real</p>
+                <div id="qr-live"></div>
+                <div class="url" id="live-string"></div>
+            </div>
         </div>
 
         <div class="print-section">
@@ -161,6 +173,16 @@
                     <h3>3. Dejar Mensaje 💌</h3>
                     <p>Escribe un mensaje de felicitación</p>
                     <div id="qr-message-print"></div>
+                </div>
+                <div class="print-qr-card">
+                    <h3>4. Subir Videos 🎬</h3>
+                    <p>Videos cortos (máx 30 seg)</p>
+                    <div id="qr-video-print"></div>
+                </div>
+                <div class="print-qr-card">
+                    <h3>5. Transmitir en Vivo 🔴</h3>
+                    <p>Transmisión en tiempo real</p>
+                    <div id="qr-live-print"></div>
                 </div>
             </div>
             <div class="print-image-section">
@@ -220,15 +242,27 @@
             const messageUrl = `http://${serverIp}/m/${eventToken}`;
             document.getElementById('message-string').textContent = messageUrl;
 
+            // URL for videos
+            const videoUrl = `http://${serverIp}/v/${eventToken}`;
+            document.getElementById('video-string').textContent = videoUrl;
+
+            // URL for live streaming
+            const liveUrl = `http://${serverIp}/live/${eventToken}`;
+            document.getElementById('live-string').textContent = liveUrl;
+
             // Clear previous QRs (screen version)
             document.getElementById('qr-wifi').innerHTML = '';
             document.getElementById('qr-url').innerHTML = '';
             document.getElementById('qr-message').innerHTML = '';
+            document.getElementById('qr-video').innerHTML = '';
+            document.getElementById('qr-live').innerHTML = '';
 
             // Clear previous QRs (print version)
             document.getElementById('qr-wifi-print').innerHTML = '';
             document.getElementById('qr-url-print').innerHTML = '';
             document.getElementById('qr-message-print').innerHTML = '';
+            document.getElementById('qr-video-print').innerHTML = '';
+            document.getElementById('qr-live-print').innerHTML = '';
 
             // Generate WiFi QR (screen)
             qrWifi = new QRCode(document.getElementById('qr-wifi'), {
@@ -286,6 +320,46 @@
                 width: 140,
                 height: 140,
                 colorDark: '#8b5cf6',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Generate Video QR (screen)
+            new QRCode(document.getElementById('qr-video'), {
+                text: videoUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#f59e0b',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Generate Live QR (screen)
+            new QRCode(document.getElementById('qr-live'), {
+                text: liveUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#ef4444',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Generate Video QR (print)
+            new QRCode(document.getElementById('qr-video-print'), {
+                text: videoUrl,
+                width: 140,
+                height: 140,
+                colorDark: '#f59e0b',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Generate Live QR (print)
+            new QRCode(document.getElementById('qr-live-print'), {
+                text: liveUrl,
+                width: 140,
+                height: 140,
+                colorDark: '#ef4444',
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.H
             });

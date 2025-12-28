@@ -4,9 +4,11 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminEventController;
 use App\Http\Controllers\AdminMessageController;
 use App\Http\Controllers\AdminPhotoController;
+use App\Http\Controllers\LiveStreamController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PublicUploadController;
 use App\Http\Controllers\ScreenController;
+use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,8 +22,17 @@ Route::post('/q/{token}/upload', [PublicUploadController::class, 'upload'])->nam
 Route::get('/m/{token}', [MessageController::class, 'show'])->name('messages.show');
 Route::post('/m/{token}', [MessageController::class, 'store'])->name('messages.store');
 
+// Videos
+Route::get('/v/{token}', [VideoController::class, 'show'])->name('videos.show');
+Route::post('/v/{token}/upload', [VideoController::class, 'upload'])->name('videos.upload');
+
+// Transmisión en vivo
+Route::get('/live/{token}', [LiveStreamController::class, 'broadcaster'])->name('live.broadcaster');
+Route::get('/live/{token}/view', [LiveStreamController::class, 'viewer'])->name('live.viewer');
+
 Route::get('/screen/{token}', [ScreenController::class, 'show'])->name('screen.show');
 Route::get('/screen/{token}/photos', [ScreenController::class, 'photos'])->name('screen.photos');
+Route::get('/screen/{token}/videos', [ScreenController::class, 'videos'])->name('screen.videos');
 
 // Admin login routes
 Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
