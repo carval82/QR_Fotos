@@ -34,6 +34,8 @@
         .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
         .badge-yes { background: rgba(40,199,111,.18); color: #28c76f; }
         .badge-no { background: rgba(255,90,95,.18); color: #ff5a5f; }
+        .btn-delete { display: inline-block; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,90,95,.35); background: rgba(255,90,95,.15); color: #ff5a5f; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; }
+        .btn-delete:hover { background: rgba(255,90,95,.25); text-decoration: none; }
         .brand { position: fixed; bottom: 16px; right: 16px; display: flex; align-items: center; gap: 8px; background: rgba(15,26,48,.85); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 12px; color: var(--muted); }
         .brand img { height: 28px; width: auto; }
         .brand span { white-space: nowrap; }
@@ -110,6 +112,11 @@
                         <a href="{{ route('admin.events.qr', ['event' => $event->id]) }}">QR</a>
                         <a href="{{ route('admin.events.moderation', ['event' => $event->id]) }}">Moderar</a>
                         <a href="{{ route('admin.events.messages', ['event' => $event->id]) }}">Mensajes</a>
+                        <form method="POST" action="{{ route('admin.events.destroy', ['event' => $event->id]) }}" style="display: inline;" onsubmit="return confirm('¿Estás seguro de eliminar el evento {{ $event->name }}? Esta acción no se puede deshacer.');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-delete">Eliminar</button>
+                        </form>
                     </td>
                 </tr>
             @endforeach

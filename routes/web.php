@@ -31,6 +31,7 @@ Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admi
 Route::prefix('admin')->middleware('admin.basic')->group(function () {
     Route::get('/events', [AdminEventController::class, 'index'])->name('admin.events.index');
     Route::post('/events', [AdminEventController::class, 'store'])->name('admin.events.store');
+    Route::delete('/events/{event}', [AdminEventController::class, 'destroy'])->name('admin.events.destroy');
 
     Route::get('/events/{event}/moderation', [AdminPhotoController::class, 'moderation'])->name('admin.events.moderation');
     Route::get('/events/{event}/qr', [AdminEventController::class, 'qr'])->name('admin.events.qr');
