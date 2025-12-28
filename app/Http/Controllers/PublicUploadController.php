@@ -32,6 +32,11 @@ class PublicUploadController extends Controller
 
         $files = $validated['photos'];
 
+        $eventDir = storage_path("app/public/events/{$event->id}");
+        if (!file_exists($eventDir)) {
+            mkdir($eventDir, 0755, true);
+        }
+
         foreach ($files as $file) {
             $path = $file->store("events/{$event->id}", 'public');
 
