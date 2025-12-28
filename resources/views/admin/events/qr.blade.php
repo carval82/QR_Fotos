@@ -32,13 +32,64 @@
         .brand span { white-space: nowrap; }
         .print-section { margin-top: 24px; text-align: center; }
 
+        .print-layout { display: none; }
+        
         @media print {
             body { background: #fff; color: #000; }
-            .nav, .config-section, .print-section, .brand, .btn { display: none !important; }
-            .container { max-width: 100%; padding: 0; }
-            .title, .subtitle { color: #000; text-align: center; }
-            .qr-grid { display: flex; justify-content: center; gap: 40px; }
-            .qr-card { box-shadow: none; border: 2px solid #ddd; }
+            .nav, .config-section, .print-section, .brand, .btn, .title, .subtitle, .qr-grid { display: none !important; }
+            .container { max-width: 100%; padding: 20px; }
+            
+            .print-layout {
+                display: flex;
+                gap: 30px;
+                align-items: flex-start;
+                justify-content: space-between;
+                min-height: 100vh;
+            }
+            
+            .print-qr-section {
+                flex: 0 0 auto;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .print-qr-card {
+                background: #fff;
+                border: 2px solid #ddd;
+                border-radius: 8px;
+                padding: 12px;
+                text-align: center;
+                max-width: 180px;
+            }
+            
+            .print-qr-card h3 {
+                margin: 0 0 4px;
+                font-size: 13px;
+                color: #333;
+            }
+            
+            .print-qr-card p {
+                margin: 0 0 8px;
+                font-size: 10px;
+                color: #666;
+            }
+            
+            .print-image-section {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .print-image-section img {
+                max-width: 100%;
+                max-height: 95vh;
+                width: auto;
+                height: auto;
+                object-fit: contain;
+                border-radius: 12px;
+            }
         }
     </style>
 </head>
@@ -93,6 +144,30 @@
             <button class="btn" onclick="window.print()">🖨️ Imprimir QRs</button>
         </div>
 
+        <!-- Layout para impresión -->
+        <div class="print-layout">
+            <div class="print-qr-section">
+                <div class="print-qr-card">
+                    <h3>1. Conectar al WiFi</h3>
+                    <p>Escanea para conectarte automáticamente</p>
+                    <div id="qr-wifi-print"></div>
+                </div>
+                <div class="print-qr-card">
+                    <h3>2. Subir Fotos</h3>
+                    <p>Después de conectarte, escanea este QR</p>
+                    <div id="qr-url-print"></div>
+                </div>
+                <div class="print-qr-card">
+                    <h3>3. Dejar Mensaje 💌</h3>
+                    <p>Escribe un mensaje de felicitación</p>
+                    <div id="qr-message-print"></div>
+                </div>
+            </div>
+            <div class="print-image-section">
+                <img src="{{ asset('img/ana-lia-quince.jpg') }}" alt="Ana Lia - Mis Quince">
+            </div>
+        </div>
+
         <div class="config-section" style="margin-top: 32px;">
             <h3>📋 Cómo configurar el Hotspot en Windows</h3>
             <ol style="color: var(--muted); line-height: 1.8; padding-left: 20px;">
@@ -145,12 +220,17 @@
             const messageUrl = `http://${serverIp}/m/${eventToken}`;
             document.getElementById('message-string').textContent = messageUrl;
 
-            // Clear previous QRs
+            // Clear previous QRs (screen version)
             document.getElementById('qr-wifi').innerHTML = '';
             document.getElementById('qr-url').innerHTML = '';
             document.getElementById('qr-message').innerHTML = '';
 
-            // Generate WiFi QR
+            // Clear previous QRs (print version)
+            document.getElementById('qr-wifi-print').innerHTML = '';
+            document.getElementById('qr-url-print').innerHTML = '';
+            document.getElementById('qr-message-print').innerHTML = '';
+
+            // Generate WiFi QR (screen)
             qrWifi = new QRCode(document.getElementById('qr-wifi'), {
                 text: wifiString,
                 width: 200,
@@ -160,7 +240,7 @@
                 correctLevel: QRCode.CorrectLevel.H
             });
 
-            // Generate URL QR
+            // Generate URL QR (screen)
             qrUrl = new QRCode(document.getElementById('qr-url'), {
                 text: uploadUrl,
                 width: 200,
@@ -170,11 +250,41 @@
                 correctLevel: QRCode.CorrectLevel.H
             });
 
-            // Generate Message QR
+            // Generate Message QR (screen)
             qrMessage = new QRCode(document.getElementById('qr-message'), {
                 text: messageUrl,
                 width: 200,
                 height: 200,
+                colorDark: '#8b5cf6',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Generate WiFi QR (print)
+            new QRCode(document.getElementById('qr-wifi-print'), {
+                text: wifiString,
+                width: 140,
+                height: 140,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Generate URL QR (print)
+            new QRCode(document.getElementById('qr-url-print'), {
+                text: uploadUrl,
+                width: 140,
+                height: 140,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Generate Message QR (print)
+            new QRCode(document.getElementById('qr-message-print'), {
+                text: messageUrl,
+                width: 140,
+                height: 140,
                 colorDark: '#8b5cf6',
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.H
